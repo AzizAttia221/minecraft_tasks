@@ -28,9 +28,27 @@ class TaskItem extends StatelessWidget {
     }
   }
 
+  Color get _priorityBackgroundColor {
+    switch (task.priority.toLowerCase()) {
+      case 'high':
+        return const Color.fromRGBO(255, 107, 107, 0.18);
+      case 'medium':
+        return const Color.fromRGBO(249, 168, 37, 0.18);
+      case 'low':
+        return const Color.fromRGBO(79, 195, 247, 0.18);
+      default:
+        return const Color.fromRGBO(139, 195, 74, 0.18);
+    }
+  }
+
+  bool get _isOverdue {
+    if (task.dueDate == null || task.isCompleted) return false;
+    return task.dueDate!.isBefore(DateTime.now());
+  }
+
   String get _dueLabel {
     if (task.dueDate == null) return 'No due date';
-    return 'Due ${task.dueDate!.month}/${task.dueDate!.day}/${task.dueDate!.year}';
+    return '${task.dueDate!.month}/${task.dueDate!.day}/${task.dueDate!.year}';
   }
 
   @override
@@ -48,110 +66,130 @@ class TaskItem extends StatelessWidget {
         child: const Icon(Icons.delete, color: Colors.white, size: 28),
       ),
       onDismissed: (_) => onDelete(),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 14),
-        decoration: BoxDecoration(
-          color: const Color.fromRGBO(255, 255, 255, 0.12),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color.fromRGBO(255, 255, 255, 0.15), width: 2),
-          boxShadow: const [
-            BoxShadow(
-              color: Color.fromRGBO(0, 0, 0, 0.25),
-              offset: Offset(3, 3),
-              blurRadius: 8,
-            ),
-          ],
-        ),
-        child: ListTile(
-          onTap: onTap,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          title: Text(
-            task.name,
-            style: TextStyle(
-              color: task.isCompleted ? Colors.white54 : Colors.white,
-              fontFamily: 'monospace',
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              decoration: task.isCompleted ? TextDecoration.lineThrough : null,
-            ),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 14),
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: const Color.fromRGBO(20, 27, 31, 1),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: const Color.fromRGBO(255, 255, 255, 0.12), width: 1.2),
           ),
-          subtitle: Column(
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 8),
-              Text(
-                task.description,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontFamily: 'monospace',
-                  fontSize: 13,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: const Color.fromRGBO(255, 255, 255, 0.08),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: Colors.white24, width: 1),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Flexible(
+                          fit: FlexFit.loose,
+                          child: Text(
+                            task.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: task.isCompleted ? Colors.white54 : Colors.white,
+                              fontFamily: 'monospace',
+                              fontSize: 17,
+                              fontWeight: FontWeight.w700,
+                              decoration: task.isCompleted ? TextDecoration.lineThrough : null,
+                            ),
+                          ),
+                        ),
+                        if (_isOverdue)
+                          Flexible(
+                            fit: FlexFit.loose,
+                            child: Container(
+                              margin: const EdgeInsets.only(left: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFB33A3A),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: const Text(
+                                'OVERDUE',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.4,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
-                    child: Text(
-                      task.category.toUpperCase(),
+                    const SizedBox(height: 10),
+                    Text(
+                      task.description,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Colors.white70,
                         fontFamily: 'monospace',
-                        fontSize: 12,
-                        letterSpacing: 0.8,
+                        fontSize: 13,
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: _priorityColor.withOpacity(0.18),
-                      borderRadius: BorderRadius.circular(14),
+                    const SizedBox(height: 16),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        _buildBadge(task.category.toUpperCase(), const Color.fromRGBO(255, 255, 255, 0.08)),
+                        _buildBadge(task.priority.toUpperCase(), _priorityBackgroundColor, textColor: _priorityColor),
+                        _buildBadge(_dueLabel, const Color.fromRGBO(255, 255, 255, 0.06), textColor: Colors.white54),
+                      ],
                     ),
-                    child: Text(
-                      task.priority.toUpperCase(),
-                      style: TextStyle(
-                        color: _priorityColor,
-                        fontFamily: 'monospace',
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+              GestureDetector(
+                onTap: onToggle,
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: task.isCompleted ? const Color(0xFF3DBB4F) : const Color.fromRGBO(255, 255, 255, 0.08),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color.fromRGBO(255, 255, 255, 0.14), width: 1.2),
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    _dueLabel,
-                    style: const TextStyle(
-                      color: Colors.white54,
-                      fontFamily: 'monospace',
-                      fontSize: 12,
-                    ),
+                  child: Icon(
+                    task.isCompleted ? Icons.check : Icons.circle_outlined,
+                    color: task.isCompleted ? Colors.white : Colors.white70,
+                    size: 26,
                   ),
-                ],
+                ),
               ),
             ],
           ),
-          trailing: GestureDetector(
-            onTap: onToggle,
-            child: Container(
-              width: 46,
-              height: 46,
-              decoration: BoxDecoration(
-                color: task.isCompleted ? const Color(0xFF3DBB4F) : const Color.fromRGBO(255, 255, 255, 0.15),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white24, width: 2),
-              ),
-              child: task.isCompleted
-                  ? const Icon(Icons.check, color: Colors.white, size: 26)
-                  : const Icon(Icons.circle_outlined, color: Colors.white70, size: 26),
-            ),
-          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBadge(String label, Color backgroundColor, {Color textColor = Colors.white}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: textColor,
+          fontFamily: 'monospace',
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.4,
         ),
       ),
     );

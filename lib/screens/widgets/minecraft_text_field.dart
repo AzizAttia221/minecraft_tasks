@@ -35,10 +35,12 @@ class MinecraftTextField extends StatelessWidget {
       ),
       child: Row(
         children: [
+          // ignore: prefer_const_constructors
           Container(
             width: 54,
             height: 54,
             alignment: Alignment.center,
+            // ignore: prefer_const_constructors
             decoration: BoxDecoration(
               color: const Color.fromRGBO(255, 255, 255, 0.08),
               borderRadius: const BorderRadius.only(
@@ -46,7 +48,10 @@ class MinecraftTextField extends StatelessWidget {
                 bottomLeft: Radius.circular(18),
               ),
               border: const Border(
-                right: BorderSide(color: Color.fromRGBO(255, 255, 255, 0.25), width: 2),
+                right: BorderSide(
+                  color: Color.fromRGBO(255, 255, 255, 0.25),
+                  width: 2,
+                ),
               ),
             ),
             child: Icon(icon, color: Colors.white70, size: 24),
