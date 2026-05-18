@@ -1,11 +1,16 @@
-scripts:
-  - name: Build unsigned IPA
-    script: |
-      flutter build ios --debug --no-codesign
-      mkdir -p build/ios/iphoneos
-      cd build/ios/iphoneos
-      mkdir Payload
-      cp -r Runner.app Payload/
-      zip -r app.ipa Payload
+workflows:
+  ios-unsigned:
+    name: iOS Unsigned Debug
+    max_build_duration: 60
+    environment:
+      flutter: stable
+    scripts:
+      - name: Build unsigned IPA
+        script: |
+          flutter build ios --debug --no-codesign
+          cd build/ios/iphoneos
+          mkdir Payload
+          cp -r Runner.app Payload/
+          zip -r app.ipa Payload
     artifacts:
       - build/ios/iphoneos/app.ipa
