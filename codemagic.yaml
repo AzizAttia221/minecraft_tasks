@@ -5,6 +5,17 @@ workflows:
     environment:
       flutter: stable
     scripts:
+      - name: Prepare iOS build
+        script: |
+          set -e
+          if [ -d ios ]; then
+            cd ios
+            if [ -f Podfile ]; then
+              pod install --repo-update
+            fi
+            cd ..
+          fi
+
       - name: Build unsigned IPA
         script: |
           flutter build ios --debug --no-codesign
