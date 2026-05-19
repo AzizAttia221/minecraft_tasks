@@ -25,8 +25,3 @@ workflows:
 
     artifacts:
       - build/ios/iphoneos/Runner.
-      
-git status
-git add .
-git commit -m "update feature"
-git push origin main
