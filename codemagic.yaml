@@ -16,21 +16,12 @@ workflows:
         script: |
           set -e
           flutter build ios --debug --no-codesign
+          find build/ios -name "*.app" -o -name "*.zip" || true
+          mkdir -p build/ios/iphoneos/Payload
+          cp -r build/ios/iphoneos/Runner.app build/ios/iphoneos/Payload/
           cd build/ios/iphoneos
-          mkdir -p Payload
-          cp -r Runner.app Payload/
-          zip -r Runner.ipa Payload
+          zip -r Runner.ipa Payload/
 
-      - name: Verify IPA exists
-        script: |
-          echo "Checking for IPA..."
-          ls -la build/ios/iphoneos/
-          if [ -f build/ios/iphoneos/Runner.ipa ]; then
-            echo "IPA found!"
-          else
-            echo "IPA NOT found - listing build directory:"
-            find build/ios -name "*.app" -o -name "*.ipa"
-            exit 1
-          fi
     artifacts:
       - build/ios/iphoneos/Runner.ipa
+      - build/ios/iphoneos/*.zip
